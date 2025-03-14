@@ -435,7 +435,7 @@ internal class Test<模块名称>
 - 按照[文档模板](#5-文档模板)检查单个文档是否符合规范
 - 按照[文档同步](#6-文档同步)检查关联文档之间是否同步
 
-### 2. 更新修改记录
+### 3. 更新修改记录
 - 使用年月日格式：`YYYY-MM-DD`
 - 按版本号降序排列
 - 分类记录变更内容：
@@ -458,7 +458,7 @@ internal class Test<模块名称>
   - 更新了依赖库版本
   ```
 
-### 3. 发布至注册表
+### 4. 发布至注册表
 - 确定版本：遵循[语义化版本 2.0.0](https://semver.org/lang/zh-CN/)
 - 发布版本：运行[版本发布](https://github.com/eframework-org/ET.U3D.UTIL/actions/workflows/publish.yml)工作流
 
