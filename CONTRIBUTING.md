@@ -19,6 +19,10 @@
 - Unity Test Framework：单元测试框架
 - Cursor/VS Code/Visual Studio：代码编辑器
 
+### 3. 集成工具
+- Github Action：提供了自动化测试及发布工作流
+- Game CI：基于 unity-test-runner@v4 的测试环境
+
 ## 目录规范
 
 ### 1. 目录结构
@@ -413,13 +417,13 @@ internal class Test<模块名称>
 ## 开发流程
 
 ### 1. 环境准备
-- 克隆仓库至本地：`git clone https://github.com/eframework-org/ET.U3D.UTIL.git`
-- 使用 `Cursor` 或 `VS Code` 编辑器打开项目
+- 克隆解决方案仓库：`git clone https://github.com/eframework-org/EF.U3D.git`
+- 使用 `Cursor` 或 `VS Code` 编辑器打开解决方案
 
 ### 2. 开发调试
-- 在编辑器中运行 `Open in Unity` 任务以打开 Unity 项目
-- 在编辑器中运行 `Attach to Unity` 任务以调试 Unity 项目
-- 在编辑器中运行 `Test in Unity` 任务以测试 Unity 项目
+- 在编辑器中运行 `Open in Unity` 任务以打开 Unity 工程
+- 在编辑器中运行 `Attach to Unity` 任务以调试 Unity 工程
+- 在编辑器中运行 `Test in Unity` 任务以测试 Unity 工程
 
 ## 发布流程
 
