@@ -2,7 +2,6 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-#if UNITY_INCLUDE_TESTS
 using System;
 using NUnit.Framework;
 using ET.U3D.UTIL;
@@ -183,4 +182,3 @@ internal class TestXEditorEvent
             "传入空事件类型应抛出 ArgumentNullException 异常");
     }
 }
-#endif

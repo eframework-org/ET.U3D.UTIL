@@ -383,7 +383,6 @@ Closes #123
 
 ### 2. 代码模板
 - 源码头部包含版权声明
-- 源码主体使用 UNITY_INCLUDE_TESTS 宏定义包围
 - 缺省命名空间，无需 namespace Xxx {}
 - 函数名称使用 PascalCase 命名法，并简化用例名，无需以TestXxx开头
 
@@ -392,7 +391,6 @@ Closes #123
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-#if UNITY_INCLUDE_TESTS
 using System;
 using NUnit.Framework;
 using <模块所在命名空间>;
@@ -410,7 +408,6 @@ internal class Test<模块名称>
    }
    ...
 }
-#endif
 ```
 
 ## 开发流程

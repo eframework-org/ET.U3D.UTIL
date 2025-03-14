@@ -2,7 +2,6 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-#if UNITY_INCLUDE_TESTS
 using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEditor;
@@ -112,4 +111,3 @@ internal class TestXEditorUtility
         Assert.DoesNotThrow(() => XEditor.Utility.ShowToast(content));
     }
 }
-#endif

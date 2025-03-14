@@ -2,7 +2,6 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-#if UNITY_INCLUDE_TESTS
 using NUnit.Framework;
 using ET.U3D.UTIL;
 using EP.U3D.UTIL;
@@ -135,4 +134,3 @@ console.log(JSON.stringify({
             "输出应包含第二个测试参数");
     }
 }
-#endif
