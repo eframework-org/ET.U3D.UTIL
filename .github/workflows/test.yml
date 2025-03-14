@@ -1,0 +1,115 @@
+name: 单元测试
+
+on:
+  workflow_dispatch:
+  workflow_call:
+    outputs:
+      test_passed:
+        description: "测试是否通过"
+        value: ${{ jobs.test.outputs.passed }}
+    secrets:
+      UNITY_LICENSE:
+        required: true
+      UNITY_EMAIL:
+        required: true
+      UNITY_PASSWORD:
+        required: true
+
+permissions:
+  checks: write
+  contents: read
+  actions: read
+  security-events: write
+
+jobs:
+  test:
+    name: 测试 ${{ matrix.testMode }} 环境
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        unityVersion: [6000.0.32f1]
+        testMode: [editmode]
+    outputs:
+      passed: ${{ steps.tests.conclusion == 'success' }}
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: 设置 Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+          registry-url: 'https://registry.npmjs.org'
+          
+      - name: 设置 MinIO
+        run: |
+          # 启动 MinIO 容器
+          docker run -d --name minio -p 9000:9000 -p 9090:9090 --restart=always \
+            -e "MINIO_ACCESS_KEY=admin" -e "MINIO_SECRET_KEY=adminadmin" \
+            minio/minio server /data --console-address ":9090" --address ":9000"
+          
+          # 等待 MinIO 服务启动
+          echo "等待 MinIO 服务启动..."
+          # 使用更可靠的方式等待服务就绪
+          max_retries=30
+          retry_interval=2
+          retry_count=0
+          
+          until curl -s --head http://localhost:9000/minio/health/ready || [ $retry_count -eq $max_retries ]; do
+            echo "等待 MinIO 服务就绪... (尝试 $retry_count/$max_retries)"
+            sleep $retry_interval
+            retry_count=$((retry_count+1))
+          done
+          
+          if [ $retry_count -eq $max_retries ]; then
+            echo "MinIO 服务启动超时，检查容器日志:"
+            docker logs minio
+            exit 1
+          fi
+          
+          echo "MinIO 服务已就绪"
+          
+          # 安装 MinIO 客户端
+          curl -O https://dl.min.io/client/mc/release/linux-amd64/mc
+          chmod +x mc
+          
+          # 配置 MinIO 客户端
+          ./mc alias set myminio http://localhost:9000 admin adminadmin
+          
+          # 创建 default bucket 并设置为公开访问
+          ./mc mb myminio/default
+          ./mc anonymous set public myminio/default
+          
+          echo "MinIO 环境设置完成，default bucket 已创建并设置为公开访问"
+
+      - name: 运行测试
+        uses: game-ci/unity-test-runner@v4
+        id: tests
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          packageMode: true
+          unityVersion: ${{ matrix.unityVersion }}
+          scopedRegistryUrl: https://registry.npmjs.org/
+          registryScopes: 'et, ep'
+          testMode: ${{ matrix.testMode }}
+          artifactsPath: ${{ matrix.testMode }}-artifacts
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+          checkName: ${{ matrix.testMode }} Test Results
+          coverageOptions: 'generateAdditionalMetrics;generateHtmlReport;generateBadgeReport;assemblyFilters:+my.assembly.*'
+
+      - name: 上传报告
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-reports-${{ matrix.testMode }}
+          path: |
+            ${{ steps.tests.outputs.artifactsPath }}
+            ${{ steps.tests.outputs.coveragePath }}
+          retention-days: 14
