@@ -2,7 +2,6 @@
     "name": "ET.U3D.UTIL",
     "rootNamespace": "",
     "references": [
-        "UnityEngine.TestRunner",
         "EP.U3D.UTIL"
     ],
     "includePlatforms": [
