@@ -39,13 +39,13 @@ jobs:
         with:
           lfs: true
 
-      - name: 设置 Node.js
+      - name: 设置 Node.js 环境
         uses: actions/setup-node@v3
         with:
           node-version: '18.x'
           registry-url: 'https://registry.npmjs.org'
           
-      - name: 设置 MinIO
+      - name: 设置 MinIO 环境
         run: |
           # 启动 MinIO 容器
           docker run -d --name minio -p 9000:9000 -p 9090:9090 --restart=always \
