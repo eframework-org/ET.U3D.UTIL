@@ -2,6 +2,7 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
+#if UNITY_INCLUDE_TESTS
 using System.IO;
 using System.Threading.Tasks;
 using NUnit.Framework;
@@ -124,3 +125,4 @@ internal class TestXEditorCmd
         Assert.That(result.Data.Trim(), Is.EqualTo(expectedOutput), "命令应输出预期的内容");
     }
 }
+#endif

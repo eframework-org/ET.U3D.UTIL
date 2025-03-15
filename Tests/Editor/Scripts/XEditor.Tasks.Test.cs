@@ -2,6 +2,7 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
+#if UNITY_INCLUDE_TESTS
 using NUnit.Framework;
 using ET.U3D.UTIL;
 
@@ -88,3 +89,4 @@ internal class TestXEditorTasks
         Assert.That(report.Error, Contains.Substring("Phase4: Error4"), "错误信息应包含阶段名称和错误描述");
     }
 }
+#endif

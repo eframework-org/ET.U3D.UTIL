@@ -2,6 +2,7 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
+#if UNITY_INCLUDE_TESTS
 using System;
 using System.Threading.Tasks;
 using NUnit.Framework;
@@ -66,3 +67,4 @@ internal class TestXEditorTitle
         else Assert.That(XEditor.Title.gitBranch, Is.Empty); // 不在 Git 仓库中
     }
 }
+#endif
