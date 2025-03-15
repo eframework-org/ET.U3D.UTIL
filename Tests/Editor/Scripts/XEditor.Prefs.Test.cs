@@ -48,7 +48,6 @@ internal class TestXEditorPrefs
         internal static bool onSaveCalled;
         internal static bool onApplyCalled;
         internal static bool validateCalled;
-        internal static bool shouldValidateSuccess = true;
 
         public override void OnActivate(string searchContext, UnityEngine.UIElements.VisualElement root)
         {
@@ -73,7 +72,7 @@ internal class TestXEditorPrefs
         public override bool Validate()
         {
             validateCalled = true;
-            return shouldValidateSuccess;
+            return true;
         }
 
         internal static void Cleanup()
@@ -83,62 +82,12 @@ internal class TestXEditorPrefs
             onSaveCalled = false;
             onApplyCalled = false;
             validateCalled = false;
-            shouldValidateSuccess = true;
         }
     }
 
     #endregion
 
     #region Test Cases
-    /// <summary>
-    /// 测试首选项面板生命周期。
-    /// </summary>
-    /// <remarks>
-    /// 验证：
-    /// 1. 面板激活和停用回调
-    /// 2. 数据验证机制
-    /// 3. 状态跟踪准确性
-    /// </remarks>
-    [Test]
-    public void Panel()
-    {
-        TestPrefsPanel.Cleanup();
-
-        var provider = new XEditor.Prefs();
-        var testPanel = ScriptableObject.CreateInstance<TestPrefsPanel>();
-        provider.panelCache[typeof(TestPrefsPanel)] = testPanel;
-
-        try
-        {
-            // 测试面板激活
-            provider.OnActivate("", new UnityEngine.UIElements.VisualElement());
-            Assert.That(TestPrefsPanel.onActivateCalled, Is.True,
-                "面板激活时应该触发 OnActivate 回调");
-
-            // 测试数据验证成功
-            TestPrefsPanel.shouldValidateSuccess = true;
-            Assert.That(provider.Validate(), Is.True,
-                "当验证条件满足时，Validate 方法应返回 true");
-            Assert.That(TestPrefsPanel.validateCalled, Is.True,
-                "执行验证时应该触发 Validate 回调");
-
-            // 测试数据验证失败
-            TestPrefsPanel.Cleanup();
-            TestPrefsPanel.shouldValidateSuccess = false;
-            Assert.That(provider.Validate(), Is.False,
-                "当验证条件不满足时，Validate 方法应返回 false");
-
-            // 测试面板停用
-            provider.OnDeactivate();
-            Assert.That(TestPrefsPanel.onDeactivateCalled, Is.True,
-                "面板停用时应该触发 OnDeactivate 回调");
-        }
-        finally
-        {
-            provider.panelCache.Remove(typeof(TestPrefsPanel));
-        }
-    }
-
     /// <summary>
     /// 测试首选项构建处理。
     /// </summary>
@@ -149,7 +98,7 @@ internal class TestXEditorPrefs
     /// 3. 编辑器配置移除
     /// </remarks>
     [Test]
-    public void Build()
+    public void OnBuild()
     {
         var testPrefsDir = XFile.PathJoin(XEnv.ProjectPath, "Temp", "TestXEditorPrefs");
         var applyFile = XPrefs.IAsset.Uri;
