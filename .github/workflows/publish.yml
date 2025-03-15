@@ -24,7 +24,7 @@ jobs:
       - name: 验证仓库名称
         if: github.event.inputs.confirm != github.repository
         run: |
-          echo "仓库名称不匹配。输入: ${{ github.event.inputs.confirm }}，期望: ${{ github.repository }}"
+          echo "仓库名称不匹配，输入: ${{ github.event.inputs.confirm }}，期望: ${{ github.repository }}"
           exit 1
 
       - name: 检出代码
