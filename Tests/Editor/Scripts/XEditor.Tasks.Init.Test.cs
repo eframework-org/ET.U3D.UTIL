@@ -31,7 +31,7 @@ using System.Linq;
 ///    - 异步任务支持
 /// </code>
 /// </remarks>
-internal class TestXEditorTasksInit
+public class TestXEditorTasksInit
 {
     /// <summary>
     /// 测试用临时目录路径。

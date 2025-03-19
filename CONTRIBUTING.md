@@ -401,7 +401,7 @@ using System;
 using NUnit.Framework;
 using <模块所在命名空间>;
 
-internal class Test<模块名称>
+public class Test<模块名称>
 {
    [Test]
    public void <功能1>()

@@ -39,7 +39,7 @@ using EP.U3D.UTIL;
 /// 4. 状态验证：确保所有状态变更符合预期
 /// </code>
 /// </remarks>
-internal class TestXEditorTasksPanel
+public class TestXEditorTasksPanel
 {
     #region Test Class and Handlers
 
@@ -59,7 +59,7 @@ internal class TestXEditorTasksPanel
     /// 3. 执行相关测试
     /// 4. 验证执行结果
     /// </remarks>
-    internal class TestVisualTask : XEditor.Tasks.Worker,
+    public class TestVisualTask : XEditor.Tasks.Worker,
         XEditor.Tasks.Panel.IOnEnable,
         XEditor.Tasks.Panel.IOnGUI,
         XEditor.Tasks.Panel.IOnDisable,

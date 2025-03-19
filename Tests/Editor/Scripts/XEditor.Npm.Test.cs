@@ -22,7 +22,7 @@ using System.Collections.Generic;
 ///    - 任务执行
 ///    - 结果验证
 /// </remarks>
-internal class TestXEditorNpm
+public class TestXEditorNpm
 {
     /// <summary>
     /// 测试用临时目录路径。

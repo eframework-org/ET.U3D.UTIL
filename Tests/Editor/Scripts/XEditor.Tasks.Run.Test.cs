@@ -45,7 +45,7 @@ using EP.U3D.UTIL;
 ///    - 多任务执行验证
 ///    - 结果输出验证
 /// </summary>
-internal class TestXEditorTasksRun
+public class TestXEditorTasksRun
 {
     #region Test Class and Handlers
 
@@ -62,7 +62,7 @@ internal class TestXEditorTasksRun
     [XEditor.Tasks.Pre(typeof(TestPreHandler2))]
     [XEditor.Tasks.Post(typeof(TestPostHandler1))]
     [XEditor.Tasks.Post(typeof(TestPostHandler2))]
-    internal class TestTask : XEditor.Tasks.Worker
+    public class TestTask : XEditor.Tasks.Worker
     {
         [XEditor.Tasks.Param("Test Param", defval: "Test Value")]
         internal string testParam;
@@ -84,7 +84,7 @@ internal class TestXEditorTasksRun
     /// </summary>
     internal interface TestPreHandler1 : XEditor.Event.Callback { void Process(params object[] args); }
 
-    internal class TestPreProcessor1 : TestPreHandler1
+    public class TestPreProcessor1 : TestPreHandler1
     {
         public int Priority => 0;
 
@@ -110,7 +110,7 @@ internal class TestXEditorTasksRun
 
     internal interface TestPreHandler2 : XEditor.Event.Callback { void Process(params object[] args); }
 
-    internal class TestPreProcessor2 : TestPreHandler2
+    public class TestPreProcessor2 : TestPreHandler2
     {
         public int Priority => 1;
 
@@ -136,7 +136,7 @@ internal class TestXEditorTasksRun
     /// </summary>
     internal interface TestPostHandler1 : XEditor.Event.Callback { void Process(params object[] args); }
 
-    internal class TestPostProcessor1 : TestPostHandler1
+    public class TestPostProcessor1 : TestPostHandler1
     {
         public int Priority => 0;
 
@@ -162,7 +162,7 @@ internal class TestXEditorTasksRun
 
     internal interface TestPostHandler2 : XEditor.Event.Callback { void Process(params object[] args); }
 
-    internal class TestPostProcessor2 : TestPostHandler2
+    public class TestPostProcessor2 : TestPostHandler2
     {
         public int Priority => 1;
 
@@ -335,14 +335,12 @@ internal class TestXEditorTasksRun
         TestPreProcessor2.panic = false;
         TestPostProcessor1.panic = false;
         TestPostProcessor2.panic = false;
-
         // 创建任务
         var worker = new TestTask
         {
             ID = "Test/TestTask",
             Runasync = false
         };
-
         // 测试正常执行时的回调时序
         var report = XEditor.Tasks.Execute(worker);
         report.Task.Wait();

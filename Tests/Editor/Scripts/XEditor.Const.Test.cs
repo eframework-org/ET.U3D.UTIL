@@ -18,7 +18,7 @@ using ET.U3D.UTIL;
 /// 3. 默认值的处理
 /// 4. 异常情况的处理
 /// </remarks>
-internal class TestXEditorConst
+public class TestXEditorConst
 {
     /// <summary>
     /// 用于测试的自定义属性特性。

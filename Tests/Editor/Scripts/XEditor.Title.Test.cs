@@ -10,7 +10,7 @@ using UnityEditor;
 using ET.U3D.UTIL;
 using EP.U3D.UTIL;
 
-internal class TestXEditorTitle
+public class TestXEditorTitle
 {
     [SetUp]
     public void Setup()

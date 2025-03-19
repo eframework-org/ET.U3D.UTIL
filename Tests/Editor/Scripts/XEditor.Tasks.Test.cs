@@ -30,7 +30,7 @@ using ET.U3D.UTIL;
 ///    - 正常执行状态
 ///    - 错误状态处理
 /// </summary>
-internal class TestXEditorTasks
+public class TestXEditorTasks
 {
     /// <summary>
     /// 测试 Report 的各项功能

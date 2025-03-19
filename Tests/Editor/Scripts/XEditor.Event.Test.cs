@@ -26,7 +26,7 @@ using System.Collections.Generic;
 ///    - 参数顺序保持
 ///    - 类型转换正确性
 /// </remarks>
-internal class TestXEditorEvent
+public class TestXEditorEvent
 {
     /// <summary>
     /// 测试用事件接口。

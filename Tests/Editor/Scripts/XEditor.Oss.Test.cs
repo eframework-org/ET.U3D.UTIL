@@ -19,7 +19,7 @@ using EP.U3D.UTIL;
 ///    - 文件上传
 ///    - 内容验证
 /// </remarks>
-internal class TestXEditorOss
+public class TestXEditorOss
 {
     /// <summary>
     /// 测试用临时目录路径。

@@ -19,7 +19,7 @@ using EP.U3D.UTIL;
 /// 2. 命令执行功能
 /// 3. 跨平台兼容性
 /// </remarks>
-internal class TestXEditorCmd
+public class TestXEditorCmd
 {
     /// <summary>
     /// 测试目录路径。

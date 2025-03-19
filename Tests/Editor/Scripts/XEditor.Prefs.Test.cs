@@ -23,7 +23,7 @@ using System.Text.RegularExpressions;
 ///    - 变量求值
 ///    - 配置清理
 /// </remarks>
-internal class TestXEditorPrefs
+public class TestXEditorPrefs
 {
     /// <summary>
     /// 测试首选项构建处理。

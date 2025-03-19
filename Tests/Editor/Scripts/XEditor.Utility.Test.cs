@@ -9,7 +9,7 @@ using UnityEditor;
 using EP.U3D.UTIL;
 using ET.U3D.UTIL;
 
-internal class TestXEditorUtility
+public class TestXEditorUtility
 {
     private string testDirectory;
     private string testAsset;

@@ -20,7 +20,7 @@ using ET.U3D.UTIL;
 ///    - 不存在图标的处理
 ///    - 图标资源的有效性
 /// </remarks>
-internal class TestXEditorIcons
+public class TestXEditorIcons
 {
     /// <summary>
     /// 图标窗口实例。

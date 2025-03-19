@@ -13,12 +13,12 @@ using System.Text.RegularExpressions;
 /// <summary>
 /// XEditor.Binary 模块的单元测试类。
 /// </summary>
-internal class TestXEditorBinary
+public class TestXEditorBinary
 {
     /// <summary>
     /// 测试用构建类（自定义参数）。
     /// </summary>
-    internal class MyBinary : XEditor.Binary
+    public class MyBinary : XEditor.Binary
     {
         public override string Output => XFile.PathJoin(Root, "CustomOutput");
         public override string Name => "CustomName";
