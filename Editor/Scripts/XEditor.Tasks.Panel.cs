@@ -648,7 +648,7 @@ namespace ET.U3D.UTIL
                 public static void Open()
                 {
                     var name = Path.GetFileName(MenuPath).Split("#")[0].Trim();
-                    Instance = EditorWindow.GetWindowWithRect<TasksPanel>(new Rect(30, 30, 285, 500), false, name);
+                    Instance = EditorWindow.GetWindow<TasksPanel>(name);
                     Instance.titleContent = new GUIContent(name, EditorGUIUtility.IconContent("d_PlayButton@2x").image);
                 }
 
