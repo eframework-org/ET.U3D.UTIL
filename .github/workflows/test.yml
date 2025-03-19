@@ -28,6 +28,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        projectPath:
+          - Package
         unityVersion: [6000.0.32f1]
         testMode: [editmode]
     outputs:
@@ -38,6 +40,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           lfs: true
+          path: Package
 
       - name: 设置 Node.js 环境
         uses: actions/setup-node@v3
@@ -54,7 +57,6 @@ jobs:
           
           # 等待 MinIO 服务启动
           echo "等待 MinIO 服务启动..."
-          # 使用更可靠的方式等待服务就绪
           max_retries=30
           retry_interval=2
           retry_count=0
@@ -95,6 +97,7 @@ jobs:
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
           packageMode: true
+          projectPath: ${{ matrix.projectPath }}
           unityVersion: ${{ matrix.unityVersion }}
           scopedRegistryUrl: https://registry.npmjs.org/
           registryScopes: 'et, ep'
@@ -103,6 +106,7 @@ jobs:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
           checkName: ${{ matrix.testMode }} Test Results
           coverageOptions: 'generateAdditionalMetrics;generateHtmlReport;generateBadgeReport;assemblyFilters:+my.assembly.*'
+          useHostNetwork: true
 
       - name: 上传报告
         uses: actions/upload-artifact@v4

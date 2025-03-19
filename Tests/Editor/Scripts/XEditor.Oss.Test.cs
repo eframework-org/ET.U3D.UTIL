@@ -98,36 +98,29 @@ public class TestXEditorOss
         var localContent = XFile.OpenText(XFile.PathJoin(testDir, "test.txt"));
         var tempFile = XFile.PathJoin(testDir, "temp.txt");
 
-        try
-        {
-            // 下载远程文件
-            var task = XEditor.Cmd.Run(
-                bin: oss.Bin,
-                args: new string[] {
+        // 下载远程文件
+        var task = XEditor.Cmd.Run(
+            bin: oss.Bin,
+            args: new string[] {
                     "get",
                     $"\"{oss.Alias}/{oss.Bucket}/{oss.Remote}/test.txt\"",
                     tempFile,
                     "--config-dir",
                     oss.Temp
-                }
-            );
-            task.Wait();
+            }
+        );
+        task.Wait();
 
-            Assert.That(task.Result.Code, Is.EqualTo(0),
-                "MinIO 客户端下载命令应该成功执行");
+        Assert.That(task.Result.Code, Is.EqualTo(0),
+            "MinIO 客户端下载命令应该成功执行");
 
-            // 比较文件内容
-            var remoteContent = XFile.OpenText(tempFile);
-            Assert.That(remoteContent, Is.EqualTo(localContent),
-                "上传后的远程文件内容应该与本地文件完全一致");
-        }
-        finally
-        {
-            // 清理临时文件
-            if (XFile.HasFile(tempFile)) XFile.DeleteFile(tempFile);
-            Assert.That(XFile.HasDirectory(oss.Temp), Is.False,
-                "任务完成后临时目录应该被清理");
-        }
+        // 比较文件内容
+        var remoteContent = XFile.OpenText(tempFile);
+        Assert.That(remoteContent, Is.EqualTo(localContent),
+            "上传后的远程文件内容应该与本地文件完全一致");
+
+        Assert.That(XFile.HasDirectory(oss.Temp), Is.False,
+               "任务完成后临时目录应该被清理");
     }
 }
 #endif
