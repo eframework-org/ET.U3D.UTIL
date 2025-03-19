@@ -9,8 +9,6 @@ using ET.U3D.UTIL;
 using UnityEditor;
 using EP.U3D.UTIL;
 using System.Text.RegularExpressions;
-using UnityEngine.TestTools;
-using UnityEngine;
 
 /// <summary>
 /// XEditor.Binary 模块的单元测试类。
@@ -138,20 +136,17 @@ internal class TestXEditorBinary
     [Test]
     public void Execute()
     {
-        var testPrefsDir = XFile.PathJoin(XEnv.ProjectPath, "Temp", "TestXEditorBinary");
-        var testPrefsFile = XFile.PathJoin(testPrefsDir, "build_prefs.json");
-        var originFile = XPrefs.Asset.File;
+        var testDir = XFile.PathJoin(XEnv.ProjectPath, "Temp", "TestXEditorBinary");
 
         try
         {
             // 准备首选项数据
-            var buildPrefs = new XPrefs.IBase { File = testPrefsFile };
-            buildPrefs.Set("Version", "1.0.0");
-            buildPrefs.Save();
+            var tempPrefs = new XPrefs.IBase { File = XFile.PathJoin(testDir, "Default.json") };
+            tempPrefs.Set("Version", "1.0.0");
+            tempPrefs.Save();
 
             // 设置当前首选项
-            XPrefs.Asset.File = buildPrefs.File;
-            XPrefs.Asset.Read();
+            XPrefs.Asset.Read(tempPrefs.File);
 
             // 构建阶段
             var handler = new XEditor.Binary { ID = "Test/Test Binary" };
@@ -171,15 +166,7 @@ internal class TestXEditorBinary
         finally
         {
             // 清理测试环境
-            if (XFile.HasDirectory(testPrefsDir)) XFile.DeleteDirectory(testPrefsDir);
-
-            // 恢复首选项
-            if (string.IsNullOrEmpty(originFile))
-                LogAssert.Expect(LogType.Error, new Regex(@"XPrefs\.Read: load .* with error: Null file for instantiating preferences\."));
-            else if (!XFile.HasFile(originFile))
-                LogAssert.Expect(LogType.Error, new Regex(@"XPrefs\.Read: load .* with error: Non exist file .* for instantiating preferences\."));
-            XPrefs.Asset.File = originFile;
-            XPrefs.Asset.Read();
+            if (XFile.HasDirectory(testDir)) XFile.DeleteDirectory(testDir);
         }
     }
 }

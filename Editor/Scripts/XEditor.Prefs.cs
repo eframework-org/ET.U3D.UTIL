@@ -11,6 +11,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEditor.Build;
 using UnityEngine.UIElements;
+using UnityEditor.TestTools.TestRunner.Api;
 using EP.U3D.UTIL;
 
 namespace ET.U3D.UTIL
@@ -128,7 +129,7 @@ namespace ET.U3D.UTIL
         /// </code>
         /// 更多信息请参考模块文档。
         /// </remarks>
-        public class Prefs : SettingsProvider, Event.Internal.OnPreprocessBuild
+        public class Prefs : SettingsProvider, Event.Internal.OnEditorLoad, Event.Internal.OnPreprocessBuild
         {
             #region 静态成员
             /// <summary>
@@ -589,9 +590,30 @@ namespace ET.U3D.UTIL
             #endregion
 
             #region 事件监听
+            class TestListener : ICallbacks
+            {
+                public void RunStarted(ITestAdaptor testsToRun) { }
+
+                public void RunFinished(ITestResultAdaptor result)
+                {
+                    // 重新读取本地文件，丢弃测试过程中的修改项
+                    XPrefs.Asset.Read(XPrefs.IAsset.Uri);
+                }
+
+                public void TestStarted(ITestAdaptor test) { }
+
+                public void TestFinished(ITestResultAdaptor result) { }
+            }
+
             int Event.Callback.Priority => 0;
 
             bool Event.Callback.Singleton => true;
+
+            void Event.Internal.OnEditorLoad.Process(params object[] args)
+            {
+                var testRunnerApi = ScriptableObject.CreateInstance<TestRunnerApi>();
+                testRunnerApi.RegisterCallbacks(new TestListener());
+            }
 
             void Event.Internal.OnPreprocessBuild.Process(params object[] args)
             {
@@ -608,7 +630,7 @@ namespace ET.U3D.UTIL
                                 {
                                     if (!visited.Add(path))
                                     {
-                                        XLog.Warn($"XEditor.Tasks.Prepare: detected recursive reference in {path}");
+                                        XLog.Warn($"XEditor.Prefs.OnPreprocessBuild: detected recursive reference in {path}");
                                         return;
                                     }
                                     var value = node.Value.Eval(XEnv.Vars, prefs);
@@ -641,7 +663,7 @@ namespace ET.U3D.UTIL
                     foreach (var key in editorKeys)
                     {
                         prefs.Unset(key);
-                        XLog.Debug("XEditor.Tasks.Prepare: remove editor prefs: {0}.", key);
+                        XLog.Debug("XEditor.Prefs.OnPreprocessBuild: remove editor prefs: {0}.", key);
                     }
 
                     evalNode(prefs); // 递归处理所有节点

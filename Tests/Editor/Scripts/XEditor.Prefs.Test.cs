@@ -37,25 +37,24 @@ internal class TestXEditorPrefs
     [Test]
     public void OnBuild()
     {
-        var testPrefsDir = XFile.PathJoin(XEnv.ProjectPath, "Temp", "TestXEditorPrefs");
-        var applyFile = XPrefs.IAsset.Uri;
+        var testDir = XFile.PathJoin(XEnv.ProjectPath, "Temp", "TestXEditorPrefs");
+        var lastUri = XPrefs.IAsset.Uri;
 
         var handler = new XEditor.Prefs() as XEditor.Event.Internal.OnPreprocessBuild;
 
         try
         {
-            // 准备测试数据
-            XPrefs.IAsset.Uri = XFile.PathJoin(testPrefsDir, "test_streaming.json"); // 重定向构建时拷贝的首选项文件
+            XPrefs.IAsset.Uri = XFile.PathJoin(testDir, "Streaming.json"); // 重定向构建时拷贝的首选项文件
 
-            var originPrefs = new XPrefs.IBase { File = XFile.PathJoin(testPrefsDir, "test_origin.json") };
-            originPrefs.Set("test_ref_key", "${Env.ProjectPath}");
-            originPrefs.Set("test_const_key@Const", "${Env.LocalPath}");
-            originPrefs.Set("test_editor_key@Editor", "editor_value");
-            originPrefs.Save();
+            // 准备测试数据
+            var tempPrefs = new XPrefs.IBase { File = XFile.PathJoin(testDir, "Default.json") };
+            tempPrefs.Set("test_ref_key", "${Env.ProjectPath}");
+            tempPrefs.Set("test_const_key@Const", "${Env.LocalPath}");
+            tempPrefs.Set("test_editor_key@Editor", "editor_value");
+            tempPrefs.Save();
 
             // 设置当前首选项
-            XPrefs.Asset.File = originPrefs.File;
-            XPrefs.Asset.Read();
+            XPrefs.Asset.Read(tempPrefs.File);
 
             // 模拟构建处理
             handler.Process();
@@ -71,18 +70,18 @@ internal class TestXEditorPrefs
                 "编辑器专用配置应该在构建时被移除");
 
             // 测试不存在的首选项文件
-            XPrefs.Asset.File = XFile.PathJoin(testPrefsDir, "test_nonexist.json");
+            XPrefs.Asset.File = XFile.PathJoin(testDir, "test_nonexist.json");
             Assert.Throws<UnityEditor.Build.BuildFailedException>(() => handler.Process(),
                 "使用不存在的首选项文件时应抛出构建失败异常");
 
             // 测试空首选项文件
-            XPrefs.Asset.File = XFile.PathJoin(testPrefsDir, "test_empty.json");
+            XPrefs.Asset.File = XFile.PathJoin(testDir, "test_empty.json");
             XFile.SaveText(XPrefs.Asset.File, "{}");
             Assert.Throws<UnityEditor.Build.BuildFailedException>(() => handler.Process(),
                 "使用空的首选项文件时应抛出构建失败异常");
 
             // 测试首选项文件读取失败
-            XPrefs.Asset.File = XFile.PathJoin(testPrefsDir, "test_invalid.json");
+            XPrefs.Asset.File = XFile.PathJoin(testDir, "test_invalid.json");
             XFile.SaveText(XPrefs.Asset.File, "invalid_content");
             LogAssert.Expect(LogType.Error, new Regex(@"XPrefs\.Read: load .* with error: Invalid instance\."));
             Assert.Throws<UnityEditor.Build.BuildFailedException>(() => handler.Process(),
@@ -90,13 +89,9 @@ internal class TestXEditorPrefs
         }
         finally
         {
-            if (XFile.HasDirectory(testPrefsDir)) XFile.DeleteDirectory(testPrefsDir); // 删除测试目录
+            if (XFile.HasDirectory(testDir)) XFile.DeleteDirectory(testDir); // 删除测试目录
 
-            XPrefs.IAsset.Uri = applyFile; // 恢复首选项文件
-            if (string.IsNullOrEmpty(XPrefs.IAsset.Uri)) LogAssert.Expect(LogType.Error, new Regex(@"XPrefs\.Read: load .* with error: Null file for instantiating preferences\."));
-            else if (!XFile.HasFile(XPrefs.IAsset.Uri)) LogAssert.Expect(LogType.Error, new Regex(@"XPrefs\.Read: load .* with error: Non exist file .* for instantiating preferences\."));
-            XPrefs.Asset.File = XPrefs.IAsset.Uri;
-            XPrefs.Asset.Read();
+            XPrefs.IAsset.Uri = lastUri; // 恢复首选项文件
         }
     }
 }
