@@ -25,69 +25,6 @@ using System.Text.RegularExpressions;
 /// </remarks>
 internal class TestXEditorPrefs
 {
-    #region Test Class and Handlers
-
-    /// <summary>
-    /// 测试用首选项面板类。
-    /// </summary>
-    /// <remarks>
-    /// 用于测试：
-    /// 1. 面板生命周期回调
-    /// 2. 数据验证机制
-    /// 3. 状态跟踪功能
-    /// </remarks>
-    internal class TestPrefsPanel : XPrefs.IPanel
-    {
-        public override string Section => "Test";
-        public override string Tooltip => "Test Panel";
-        public override bool Foldable => true;
-        public override int Priority => 0;
-
-        internal static bool onActivateCalled;
-        internal static bool onDeactivateCalled;
-        internal static bool onSaveCalled;
-        internal static bool onApplyCalled;
-        internal static bool validateCalled;
-
-        public override void OnActivate(string searchContext, UnityEngine.UIElements.VisualElement root)
-        {
-            onActivateCalled = true;
-        }
-
-        public override void OnDeactivate()
-        {
-            onDeactivateCalled = true;
-        }
-
-        public override void OnSave()
-        {
-            onSaveCalled = true;
-        }
-
-        public override void OnApply()
-        {
-            onApplyCalled = true;
-        }
-
-        public override bool Validate()
-        {
-            validateCalled = true;
-            return true;
-        }
-
-        internal static void Cleanup()
-        {
-            onActivateCalled = false;
-            onDeactivateCalled = false;
-            onSaveCalled = false;
-            onApplyCalled = false;
-            validateCalled = false;
-        }
-    }
-
-    #endregion
-
-    #region Test Cases
     /// <summary>
     /// 测试首选项构建处理。
     /// </summary>
@@ -162,7 +99,5 @@ internal class TestXEditorPrefs
             XPrefs.Asset.Read();
         }
     }
-
-    #endregion
 }
 #endif
