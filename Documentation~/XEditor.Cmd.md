@@ -56,8 +56,6 @@ var result = await XEditor.Cmd.Run("git", XEnv.ProjectPath, true, "pull");
 
 ## 常见问题
 
-更多问题，请查阅[问题反馈](../CONTRIBUTING.md#问题反馈)。
-
 ### 1. macOS 下找不到命令
 - 现象：在 macOS 系统下某些命令无法被正确找到
 - 原因：Unity/Mono 在启动时可能不会完全继承系统的环境变量，特别是 `/usr/local/bin` 等目录
@@ -67,6 +65,8 @@ var result = await XEditor.Cmd.Run("git", XEnv.ProjectPath, true, "pull");
 
 ### 2. 命令执行被阻塞
 命令执行支持取消操作，在非批处理模式下可以通过进度条界面取消执行。如果命令执行时间过长，建议使用静默模式执行。
+
+更多问题，请查阅[问题反馈](../CONTRIBUTING.md#问题反馈)。
 
 ## 项目信息
 

@@ -98,8 +98,6 @@ if (report.Result == XEditor.Tasks.Result.Succeeded) {
 
 ## 常见问题
 
-更多问题，请查阅[问题反馈](../CONTRIBUTING.md#问题反馈)。
-
 ### 1. MinIO 客户端下载失败
 - 现象：无法自动下载 MinIO 客户端
 - 原因：网络连接问题或权限不足
@@ -131,6 +129,8 @@ if (report.Result == XEditor.Tasks.Result.Succeeded) {
   1. 确保使用正斜杠（/）作为路径分隔符
   2. 注意远程路径中是否已包含目标目录名
   3. 检查路径中是否有多余的斜杠
+
+更多问题，请查阅[问题反馈](../CONTRIBUTING.md#问题反馈)。
 
 ## 项目信息
 

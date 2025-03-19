@@ -121,8 +121,6 @@ public class MyPrefsPanel : XPrefs.IPanel
 
 ## 常见问题
 
-更多问题，请查阅[问题反馈](../CONTRIBUTING.md#问题反馈)。
-
 ### 1. 配置未生效
 - 现象：修改配置后未生效
 - 原因：配置未保存或未应用
@@ -137,6 +135,8 @@ public class MyPrefsPanel : XPrefs.IPanel
 - 现象：配置中的变量未被正确替换
 - 原因：变量引用格式错误或循环引用
 - 解决：检查变量引用格式，避免循环引用
+
+更多问题，请查阅[问题反馈](../CONTRIBUTING.md#问题反馈)。
 
 ## 项目信息
 

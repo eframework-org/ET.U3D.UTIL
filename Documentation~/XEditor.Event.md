@@ -118,8 +118,6 @@ void IMyEventHandler.Process(params object[] args)
 
 ## 常见问题
 
-更多问题，请查阅[问题反馈](../CONTRIBUTING.md#问题反馈)。
-
 ### 1. 事件回调未触发
 - 确保回调类正确实现了对应的事件接口
 - 确保使用显式接口实现（`void InterfaceName.Process`）来声明处理方法
@@ -130,6 +128,8 @@ void IMyEventHandler.Process(params object[] args)
 
 ### 3. 回调执行顺序不符合预期
 检查各回调类的 `Priority` 属性返回值，数值越小优先级越高，相同优先级的回调执行顺序不保证。
+
+更多问题，请查阅[问题反馈](../CONTRIBUTING.md#问题反馈)。
 
 ## 项目信息
 

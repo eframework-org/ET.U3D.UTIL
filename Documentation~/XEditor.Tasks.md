@@ -233,8 +233,6 @@ Unity.exe -batchmode -projectPath /path/to/project -runTasks -taskID "Task1" -ta
 
 ## 常见问题
 
-更多问题，请查阅[问题反馈](../CONTRIBUTING.md#问题反馈)。
-
 ### 1. 如何处理任务执行时的错误?
 
 在任务的 Process 方法中使用 try-catch 捕获异常，并将错误信息记录到 Report 对象中：
@@ -303,6 +301,8 @@ void MyPostHandler.Process(params object[] args)
     }
 }
 ```
+
+更多问题，请查阅[问题反馈](../CONTRIBUTING.md#问题反馈)。
 
 ## 项目信息
 

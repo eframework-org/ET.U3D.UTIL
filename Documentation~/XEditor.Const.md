@@ -46,8 +46,6 @@ string value = XEditor.Const.GetCoustom<MyAttribute, string>(ref sig, ref prop, 
 
 ## 常见问题
 
-更多问题，请查阅[问题反馈](../CONTRIBUTING.md#问题反馈)。
-
 ### 1. 配置无法生效
 检查以下几点：
 - 确保类已标记 `[XEditor.Const]`
@@ -56,6 +54,8 @@ string value = XEditor.Const.GetCoustom<MyAttribute, string>(ref sig, ref prop, 
 
 ### 2. 多配置项处理
 当多个配置类定义相同配置项时，系统使用首个检测到的配置值。建议在单一配置类中集中管理。
+
+更多问题，请查阅[问题反馈](../CONTRIBUTING.md#问题反馈)。
 
 ## 项目信息
 

@@ -221,8 +221,6 @@ handler.Run(path: "path/to/build", name: "build_name");
 
 ## 常见问题
 
-更多问题，请查阅[问题反馈](../CONTRIBUTING.md#问题反馈)。
-
 ### 1. Unity 6.0 构建配置恢复失败
 
 **问题描述**
@@ -230,6 +228,8 @@ handler.Run(path: "path/to/build", name: "build_name");
 - 现象：编译后恢复配置报错 "AssertionException: Build profile is null"
 - 原因：ScriptableObject 在构建时被销毁，AssetDatabase.LoadAssetAtPath 重新加载的对象也不行
 - 解决：使用 try-catch 捕获异常，可以正常恢复
+
+更多问题，请查阅[问题反馈](../CONTRIBUTING.md#问题反馈)。
 
 ## 项目信息
 
