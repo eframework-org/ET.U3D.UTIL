@@ -17,6 +17,7 @@ on:
 
 jobs:
   prepare:
+    name: 准备发布环境
     runs-on: ubuntu-latest
     outputs:
       next_version: ${{ steps.get_version.outputs.version }}
@@ -62,6 +63,7 @@ jobs:
           echo "将发布版本：v$VERSION"
 
   test:
+    name: 运行单元测试
     needs: prepare
     if: ${{ github.event.inputs.skip_tests != 'true' }}
     permissions:
@@ -76,6 +78,7 @@ jobs:
       UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
 
   publish:
+    name: 运行版本发布
     needs: [prepare, test]
     if: ${{ always() && (needs.test.result == 'success' || needs.test.result == 'skipped') }}
     runs-on: ubuntu-latest
