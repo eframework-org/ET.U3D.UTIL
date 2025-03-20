@@ -31,7 +31,7 @@ jobs:
         projectPath:
           - Package
         unityVersion: [6000.0.32f1]
-        testMode: [editmode]
+        testMode: [EditMode]
     outputs:
       passed: ${{ steps.tests.conclusion == 'success' }}
 
@@ -102,18 +102,15 @@ jobs:
           scopedRegistryUrl: https://registry.npmjs.org/
           registryScopes: 'et, ep'
           testMode: ${{ matrix.testMode }}
-          artifactsPath: ${{ matrix.testMode }}-artifacts
+          artifactsPath: Results
           githubToken: ${{ secrets.GITHUB_TOKEN }}
-          checkName: ${{ matrix.testMode }} Test Results
-          coverageOptions: 'generateAdditionalMetrics;generateHtmlReport;generateBadgeReport;assemblyFilters:+my.assembly.*'
+          checkName: 测试 ${{ matrix.testMode }} 报告
           useHostNetwork: true
 
       - name: 上传报告
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: test-reports-${{ matrix.testMode }}
-          path: |
-            ${{ steps.tests.outputs.artifactsPath }}
-            ${{ steps.tests.outputs.coveragePath }}
+          name: Test.${{ matrix.testMode }}.Reports
+          path: ${{ steps.tests.outputs.artifactsPath }}
           retention-days: 14
