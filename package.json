@@ -5,8 +5,11 @@
   "version": "0.0.1",
   "unity": "2021.3",
   "license": "MIT",
-  "author": "eframework-org",
-  "homepage": "https://github.com/eframework-org",
+  "author": {
+    "name": "EFramework Organization",
+    "email": "eframework-org@outlook.com",
+    "url": "https://github.com/eframework-org"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/eframework-org/ET.U3D.UTIL.git"
