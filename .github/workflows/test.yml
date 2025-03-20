@@ -49,6 +49,7 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
           
       - name: 设置 MinIO 环境
+        shell: bash
         run: |
           # 启动 MinIO 容器
           docker run -d --name minio -p 9000:9000 -p 9090:9090 --restart=always \
