@@ -38,8 +38,8 @@ public class TestXEditorBinary
     /// 3. 目录创建
     /// 4. Unity 构建设置的正确性
     /// </remarks>
-    [TestCase(typeof(XEditor.Binary))]
-    [TestCase(typeof(MyBinary))]
+    [TestCase(typeof(XEditor.Binary), Description = "验证默认构建类的参数生成")]
+    [TestCase(typeof(MyBinary), Description = "验证自定义构建类的参数覆盖")]
     public void Prepare(Type type)
     {
         XLog.Debug("XEditor.Binary.Test.Prepare: testing build handler type: {0}.", type.Name);
@@ -62,9 +62,16 @@ public class TestXEditorBinary
                     (int)XLog.Level());
 
                 var expectedOutput = XFile.PathJoin(XEditor.Binary.Root, XEnv.Channel, XEnv.Platform.ToString());
+
+                // 验证构建名称格式是否符合规范
                 Assert.That(handler.Name, Does.Match(pattern), "构建名称应符合规范格式");
+
+                // 验证版本号格式是否为日期加序号
                 Assert.That(handler.Code, Does.Match(@"^\d{8}\d+$"), "版本号应为日期加序号格式");
+
+                // 验证输出路径是否遵循默认规则
                 Assert.That(handler.Output, Is.EqualTo(expectedOutput), "输出路径应遵循默认规则");
+
                 Assert.That(handler.File, Does.StartWith(XFile.PathJoin(handler.Output, handler.Name)), "构建文件应位于输出目录下");
             }
             else

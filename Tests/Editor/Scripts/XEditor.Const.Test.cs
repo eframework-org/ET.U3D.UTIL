@@ -47,18 +47,23 @@ public class TestXEditorConst
     /// <param name="expectedValue">期望的返回值</param>
     /// <remarks>
     /// 验证以下场景：
-    /// 1. 存在的自定义特性(MyPropAttribute)
-    /// 2. 不存在的特性(ObsoleteAttribute)
-    /// 3. 空特性类型(null)
-    /// 4. 无效的特性类型(SerializableAttribute)
+    /// 1. 存在的自定义特性 (MyPropAttribute)
+    /// 2. 不存在的特性 (ObsoleteAttribute)
+    /// 3. 空特性类型 (null)
+    /// 4. 无效的特性类型 (SerializableAttribute)
     /// 5. 缓存机制的有效性
     /// 6. 默认值的处理
     /// </remarks>
-    [TestCase(typeof(MyPropAttribute), null, "my_value")]
-    [TestCase(typeof(ObsoleteAttribute), null, null)]
-    [TestCase(typeof(ObsoleteAttribute), "default", "default")]
-    [TestCase(null, "default", "default")]
-    [TestCase(typeof(SerializableAttribute), "default", "default")]
+    [TestCase(typeof(MyPropAttribute), null, "my_value",
+        Description = "验证存在的自定义特性 MyPropAttribute")]
+    [TestCase(typeof(ObsoleteAttribute), null, null,
+        Description = "验证不存在的特性 ObsoleteAttribute")]
+    [TestCase(typeof(ObsoleteAttribute), "default", "default",
+        Description = "验证不存在的特性 ObsoleteAttribute，使用默认值")]
+    [TestCase(null, "default", "default",
+        Description = "验证空特性类型 null，使用默认值")]
+    [TestCase(typeof(SerializableAttribute), "default", "default",
+        Description = "验证无效的特性类型 SerializableAttribute，使用默认值")]
     public void GetCustom(Type attributeType, object defaultValue, object expectedValue)
     {
         bool sig = false;

@@ -83,10 +83,10 @@ public class TestXEditorCmd
     /// </summary>
     /// <remarks>
     /// 验证以下场景：
-    /// 1. 空命令名称
-    /// 2. 不存在的命令
-    /// 3. 无路径的命令
-    /// 4. 指定路径的命令
+    /// 1. 空命令名称：应返回空字符串
+    /// 2. 不存在的命令：应返回空字符串
+    /// 3. 无路径的命令：应返回空字符串
+    /// 4. 指定路径的命令：应返回完整路径
     /// </remarks>
     [Test]
     public void Find()
@@ -107,16 +107,16 @@ public class TestXEditorCmd
     /// <param name="expectedOutput">期望的输出内容</param>
     /// <remarks>
     /// 验证以下场景：
-    /// 1. 基本命令执行
-    /// 2. 打印输出控制
-    /// 3. 进度显示控制
-    /// 4. 返回值验证
-    /// 5. 输出内容验证
+    /// 1. 基本命令执行：验证命令是否能正常执行
+    /// 2. 打印输出控制：验证是否正确控制输出打印
+    /// 3. 进度显示控制：验证是否正确控制进度显示
+    /// 4. 返回值验证：验证命令返回码是否符合预期
+    /// 5. 输出内容验证：验证命令输出内容是否符合预期
     /// </remarks>
-    [TestCase(false, false, new string[] { }, 0, "Hello World")]
-    [TestCase(true, false, new string[] { }, 0, "Hello World")]
-    [TestCase(false, true, new string[] { }, 0, "Hello World")]
-    [TestCase(true, true, new string[] { }, 0, "Hello World")]
+    [TestCase(false, false, new string[] { }, 0, "Hello World", Description = "验证基本命令执行，无打印输出，无进度显示")]
+    [TestCase(true, false, new string[] { }, 0, "Hello World", Description = "验证基本命令执行，启用打印输出，无进度显示")]
+    [TestCase(false, true, new string[] { }, 0, "Hello World", Description = "验证基本命令执行，无打印输出，启用进度显示")]
+    [TestCase(true, true, new string[] { }, 0, "Hello World", Description = "验证基本命令执行，启用打印输出和进度显示")]
     public async Task Run(bool print, bool progress, string[] args, int expectedCode, string expectedOutput)
     {
         var result = await XEditor.Cmd.Run(bin: testCmd, print: print, progress: progress, args: args);
