@@ -104,8 +104,7 @@ jobs:
           RUN chmod +x /usr/local/bin/entrypoint.sh
 
           # 设置镜像入口
-          ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-          CMD ["bash"]
+          ENTRYPOINT /usr/local/bin/entrypoint.sh
           EOF
 
           # 构建镜像
