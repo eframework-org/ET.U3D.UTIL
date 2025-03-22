@@ -64,14 +64,12 @@ jobs:
           RUN mkdir -p /minio/data
 
           # 安装 MinIO 服务器
-          RUN curl -O https://dl.min.io/server/minio/release/linux-amd64/minio && \\
-              chmod +x minio && \\
-              mv minio /usr/local/bin/
+          RUN curl -fsSL https://dl.min.io/server/minio/release/linux-amd64/minio -o /usr/local/bin/minio && \\
+              chmod +x /usr/local/bin/minio
 
           # 安装 MinIO 客户端
-          RUN curl -O https://dl.min.io/client/mc/release/linux-amd64/mc && \\
-              chmod +x mc && \\
-              mv mc /usr/local/bin/
+          RUN curl -fsSL https://dl.min.io/client/mc/release/linux-amd64/mc -o /usr/local/bin/mc && \\
+              chmod +x /usr/local/bin/mc
 
           # 设置 MinIO 环境变量
           ENV MINIO_ACCESS_KEY=admin
@@ -79,38 +77,25 @@ jobs:
 
           # 创建启动脚本
           RUN echo '#!/bin/bash\\n\
-          # 启动 MinIO 服务器\\n\
           nohup minio server /minio/data --console-address ":9090" --address ":9000" > /minio/minio.log 2>&1 &\\n\
-          \\n\
-          # 等待 MinIO 服务就绪\\n\
           echo "等待 MinIO 服务启动..."\\n\
           max_retries=30\\n\
           retry_interval=2\\n\
           retry_count=0\\n\
-          \\n\
           until curl -s --head http://localhost:9000/minio/health/ready || [ \\$retry_count -eq \\$max_retries ]; do\\n\
             echo "等待 MinIO 服务就绪... (尝试 \\$retry_count/\\$max_retries)"\\n\
             sleep \\$retry_interval\\n\
             retry_count=\\$((retry_count+1))\\n\
           done\\n\
-          \\n\
           if [ \\$retry_count -eq \\$max_retries ]; then\\n\
             echo "MinIO 服务启动超时"\\n\
             exit 1\\n\
           fi\\n\
-          \\n\
           echo "MinIO 服务已就绪"\\n\
-          \\n\
-          # 配置 MinIO 客户端\\n\
           mc alias set myminio http://localhost:9000 admin adminadmin\\n\
-          \\n\
-          # 创建 default bucket 并设置为公开访问\\n\
           mc mb myminio/default || true\\n\
           mc anonymous set public myminio/default\\n\
-          \\n\
-          echo "MinIO 环境设置完成，default bucket 已创建并设置为公开访问"\\n\
-          \\n\
-          # 执行传入的命令\\n\
+          echo "创建 default bucket 并设置为公开访问"\\n\
           exec "\\$@"' > /usr/local/bin/entrypoint.sh
 
           RUN chmod +x /usr/local/bin/entrypoint.sh
