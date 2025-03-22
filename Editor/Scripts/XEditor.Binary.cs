@@ -16,6 +16,7 @@ using UnityEditor.Build.Profile;
 #endif
 using UnityEditor.Build.Reporting;
 using EP.U3D.UTIL;
+using System.Runtime.InteropServices;
 
 namespace ET.U3D.UTIL
 {
@@ -518,6 +519,17 @@ namespace ET.U3D.UTIL
                             brustSrc = XFile.PathJoin(Output, Name, Application.productName + "_BurstDebugInformation_DoNotShip");
                         }
                         symbolSrc = XFile.PathJoin(Output, Name, bin + "_BackUpThisFolder_ButDontShipItWithYourGame");
+
+                        foreach (var dir in dirs)
+                        {
+                            XLog.Notice("XEditor.Binary.Process.Symbol.Dir: {0}", dir);
+                        }
+
+                        var files = Directory.GetFiles(Output);
+                        foreach (var file in files)
+                        {
+                            XLog.Notice("XEditor.Binary.Process.Symbol.File: {0}", file);
+                        }
                     }
                 }
                 else if (XEnv.Platform == XEnv.PlatformType.Android)
