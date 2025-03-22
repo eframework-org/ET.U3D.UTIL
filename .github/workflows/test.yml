@@ -42,48 +42,7 @@ jobs:
           lfs: true
           path: Package
 
-      - name: 设置 MinIO 环境
-        shell: bash
-        run: |
-          # 启动 MinIO 容器
-          docker run -d --name minio -p 9000:9000 -p 9090:9090 --restart=always \
-            -e "MINIO_ACCESS_KEY=admin" -e "MINIO_SECRET_KEY=adminadmin" \
-            minio/minio server /data --console-address ":9090" --address ":9000"
-          
-          # 等待 MinIO 服务启动
-          echo "等待 MinIO 服务启动..."
-          max_retries=30
-          retry_interval=2
-          retry_count=0
-          
-          until curl -s --head http://localhost:9000/minio/health/ready || [ $retry_count -eq $max_retries ]; do
-            echo "等待 MinIO 服务就绪... (尝试 $retry_count/$max_retries)"
-            sleep $retry_interval
-            retry_count=$((retry_count+1))
-          done
-          
-          if [ $retry_count -eq $max_retries ]; then
-            echo "MinIO 服务启动超时，检查容器日志:"
-            docker logs minio
-            exit 1
-          fi
-          
-          echo "MinIO 服务已就绪"
-          
-          # 安装 MinIO 客户端
-          curl -O https://dl.min.io/client/mc/release/linux-amd64/mc
-          chmod +x mc
-          
-          # 配置 MinIO 客户端
-          ./mc alias set myminio http://localhost:9000 admin adminadmin
-          
-          # 创建 default bucket 并设置为公开访问
-          ./mc mb myminio/default
-          ./mc anonymous set public myminio/default
-          
-          echo "MinIO 环境设置完成，default bucket 已创建并设置为公开访问"
-
-      - name: 构建镜像
+      - name: 准备镜像
         shell: bash
         run: |
           # 创建 Dockerfile
@@ -94,12 +53,77 @@ jobs:
           # 安装 Node.js
           RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \\
               apt-get install -y nodejs
+
+          # 安装 MinIO 依赖
+          RUN apt-get update && apt-get install -y \\
+              curl \\
+              ca-certificates \\
+              && rm -rf /var/lib/apt/lists/*
+
+          # 创建 MinIO 目录
+          RUN mkdir -p /minio/data
+
+          # 安装 MinIO 服务器
+          RUN curl -O https://dl.min.io/server/minio/release/linux-amd64/minio && \\
+              chmod +x minio && \\
+              mv minio /usr/local/bin/
+
+          # 安装 MinIO 客户端
+          RUN curl -O https://dl.min.io/client/mc/release/linux-amd64/mc && \\
+              chmod +x mc && \\
+              mv mc /usr/local/bin/
+
+          # 设置 MinIO 环境变量
+          ENV MINIO_ACCESS_KEY=admin
+          ENV MINIO_SECRET_KEY=adminadmin
+
+          # 创建启动脚本
+          RUN echo '#!/bin/bash\\n\
+          # 启动 MinIO 服务器\\n\
+          nohup minio server /minio/data --console-address ":9090" --address ":9000" > /minio/minio.log 2>&1 &\\n\
+          \\n\
+          # 等待 MinIO 服务就绪\\n\
+          echo "等待 MinIO 服务启动..."\\n\
+          max_retries=30\\n\
+          retry_interval=2\\n\
+          retry_count=0\\n\
+          \\n\
+          until curl -s --head http://localhost:9000/minio/health/ready || [ \\$retry_count -eq \\$max_retries ]; do\\n\
+            echo "等待 MinIO 服务就绪... (尝试 \\$retry_count/\\$max_retries)"\\n\
+            sleep \\$retry_interval\\n\
+            retry_count=\\$((retry_count+1))\\n\
+          done\\n\
+          \\n\
+          if [ \\$retry_count -eq \\$max_retries ]; then\\n\
+            echo "MinIO 服务启动超时"\\n\
+            exit 1\\n\
+          fi\\n\
+          \\n\
+          echo "MinIO 服务已就绪"\\n\
+          \\n\
+          # 配置 MinIO 客户端\\n\
+          mc alias set myminio http://localhost:9000 admin adminadmin\\n\
+          \\n\
+          # 创建 default bucket 并设置为公开访问\\n\
+          mc mb myminio/default || true\\n\
+          mc anonymous set public myminio/default\\n\
+          \\n\
+          echo "MinIO 环境设置完成，default bucket 已创建并设置为公开访问"\\n\
+          \\n\
+          # 执行传入的命令\\n\
+          exec "\\$@"' > /usr/local/bin/entrypoint.sh
+
+          RUN chmod +x /usr/local/bin/entrypoint.sh
+
+          # 设置镜像入口
+          ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+          CMD ["bash"]
           EOF
           
           # 构建镜像
           docker build -t unity-editor-nodejs:latest .
           
-          # 显示镜像
+          # 显示镜像信息
           docker images | grep unity-editor-nodejs
 
       - name: 运行测试
