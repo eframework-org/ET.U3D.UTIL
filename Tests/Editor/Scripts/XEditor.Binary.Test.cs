@@ -9,6 +9,7 @@ using ET.U3D.UTIL;
 using UnityEditor;
 using EP.U3D.UTIL;
 using System.Text.RegularExpressions;
+using System.IO;
 
 /// <summary>
 /// XEditor.Binary 模块的单元测试类。
@@ -25,6 +26,39 @@ public class TestXEditorBinary
         public override string Code => "202501011";
         public override BuildOptions Options => BuildOptions.Development | BuildOptions.AllowDebugging;
         public override string[] Scenes => new string[] { "Assets/Scenes/Test.unity" };
+    }
+
+    /// <summary>
+    /// 测试用构建类（自定义场景）。
+    /// </summary>
+    public class MyBinary2 : XEditor.Binary
+    {
+        public const string Scene = "Assets/Temp/TestXEditorBinary/Test.unity";
+        public override string[] Scenes => new string[] { Scene };
+
+        public override void Preprocess(XEditor.Tasks.Report report)
+        {
+            base.Preprocess(report);
+
+            // 创建场景
+            var sceneDir = Path.GetDirectoryName(Scene);
+            if (!XFile.HasDirectory(sceneDir)) XFile.DeleteDirectory(sceneDir);
+            XFile.CreateDirectory(sceneDir);
+            AssetDatabase.Refresh();
+            var scene = UnityEditor.SceneManagement.EditorSceneManager.NewScene(UnityEditor.SceneManagement.NewSceneSetup.DefaultGameObjects, UnityEditor.SceneManagement.NewSceneMode.Single);
+            UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene, Scene);
+            AssetDatabase.Refresh();
+        }
+
+        public override void Postprocess(XEditor.Tasks.Report report)
+        {
+            base.Postprocess(report);
+
+            // 删除场景
+            var sceneDir = Path.GetDirectoryName(Scene);
+            if (XFile.HasDirectory(sceneDir)) XFile.DeleteDirectory(sceneDir);
+            AssetDatabase.Refresh();
+        }
     }
 
     /// <summary>
@@ -156,7 +190,7 @@ public class TestXEditorBinary
             XPrefs.Asset.Read(tempPrefs.File);
 
             // 构建阶段
-            var handler = new XEditor.Binary { ID = "Test/Test Binary" };
+            var handler = new MyBinary2 { ID = "Test/Test Binary" };
             var report = XEditor.Tasks.Execute(handler);
 
             // 验证构建结果
