@@ -42,12 +42,6 @@ jobs:
           lfs: true
           path: Package
 
-      - name: 设置 Node.js 环境
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18.x'
-          registry-url: 'https://registry.npmjs.org'
-          
       - name: 设置 MinIO 环境
         shell: bash
         run: |
@@ -89,6 +83,25 @@ jobs:
           
           echo "MinIO 环境设置完成，default bucket 已创建并设置为公开访问"
 
+      - name: 构建 Unity 镜像
+        shell: bash
+        run: |
+          # 创建临时 Dockerfile
+          cat > Dockerfile << EOF
+          # 基于 unityci/editor 镜像
+          FROM unityci/editor:ubuntu-${{ matrix.unityVersion }}-linux-il2cpp-3
+
+          # 安装 Node.js
+          RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \\
+              apt-get install -y nodejs
+          EOF
+          
+          # 构建镜像
+          docker build -t unity-editor-nodejs:latest .
+          
+          # 显示镜像
+          docker images | grep unity-editor-nodejs
+
       - name: 运行测试
         uses: game-ci/unity-test-runner@v4
         id: tests
@@ -107,6 +120,7 @@ jobs:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
           checkName: 测试 ${{ matrix.testMode }} 报告
           useHostNetwork: true
+          customImage: unity-editor-nodejs:latest
 
       - name: 上传报告
         uses: actions/upload-artifact@v4
