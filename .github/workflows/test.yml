@@ -42,7 +42,7 @@ jobs:
           lfs: true
           path: Package
 
-      - name: 创建脚本文件
+      - name: 准备镜像
         run: |
           # 创建 entrypoint.sh 脚本
           cat > entrypoint.sh << 'EOF'
@@ -50,7 +50,6 @@ jobs:
           # 启动 MinIO 服务器
           nohup minio server /minio/data --console-address ":9090" --address ":9000" > /minio/minio.log 2>&1 &
 
-          # 等待 MinIO 服务就绪
           echo "等待 MinIO 服务启动..."
           max_retries=30
           retry_interval=2
@@ -69,19 +68,16 @@ jobs:
 
           echo "MinIO 服务已就绪"
 
-          # 配置 MinIO 客户端
           mc alias set myminio http://localhost:9000 admin adminadmin
           mc mb myminio/default || true
           mc anonymous set public myminio/default
-          echo "创建 default bucket 并设置为公开访问"
+          echo "已创建 default bucket 并设置为公开访问"
 
           # 执行传入的命令
           exec "$@"
           EOF
           chmod +x entrypoint.sh
 
-      - name: 构建自定义镜像
-        run: |
           # 创建 Dockerfile
           cat > Dockerfile << EOF
           FROM unityci/editor:ubuntu-${{ matrix.unityVersion }}-linux-il2cpp-3
