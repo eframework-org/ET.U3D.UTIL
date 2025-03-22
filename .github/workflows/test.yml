@@ -42,87 +42,78 @@ jobs:
           lfs: true
           path: Package
 
-      - name: 准备镜像
-        shell: bash
+      - name: 创建脚本文件
         run: |
-          # 创建 Dockerfile
-          cat > Dockerfile << 'EOF'
-          # 基于 unityci/editor 镜像
-          FROM unityci/editor:ubuntu-${{ matrix.unityVersion }}-linux-il2cpp-3
-
-          # 安装 Node.js
-          RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
-              apt-get install -y nodejs
-
-          # 安装 MinIO 依赖
-          RUN apt-get update && apt-get install -y \
-              curl \
-              ca-certificates \
-              && rm -rf /var/lib/apt/lists/*
-
-          # 创建 MinIO 目录
-          RUN mkdir -p /minio/data
-
-          # 安装 MinIO 服务器
-          RUN curl -fsSL https://dl.min.io/server/minio/release/linux-amd64/minio -o /usr/local/bin/minio && \
-              chmod +x /usr/local/bin/minio
-
-          # 安装 MinIO 客户端
-          RUN curl -fsSL https://dl.min.io/client/mc/release/linux-amd64/mc -o /usr/local/bin/mc && \
-              chmod +x /usr/local/bin/mc
-
-          # 设置 MinIO 环境变量
-          ENV MINIO_ACCESS_KEY=admin
-          ENV MINIO_SECRET_KEY=adminadmin
-
-          # 创建启动脚本
-          RUN cat > /usr/local/bin/entrypoint.sh << 'EOFINNER'
+          # 创建 entrypoint.sh 脚本
+          cat > entrypoint.sh << 'EOF'
           #!/bin/bash
           # 启动 MinIO 服务器
           nohup minio server /minio/data --console-address ":9090" --address ":9000" > /minio/minio.log 2>&1 &
-          
+
           # 等待 MinIO 服务就绪
           echo "等待 MinIO 服务启动..."
           max_retries=30
           retry_interval=2
           retry_count=0
-          
+
           until curl -s --head http://localhost:9000/minio/health/ready || [ $retry_count -eq $max_retries ]; do
             echo "等待 MinIO 服务就绪... (尝试 $retry_count/$max_retries)"
             sleep $retry_interval
             retry_count=$((retry_count+1))
           done
-          
+
           if [ $retry_count -eq $max_retries ]; then
             echo "MinIO 服务启动超时"
             exit 1
           fi
-          
+
           echo "MinIO 服务已就绪"
-          
+
           # 配置 MinIO 客户端
           mc alias set myminio http://localhost:9000 admin adminadmin
-          
-          # 创建 default bucket 并设置为公开访问
           mc mb myminio/default || true
           mc anonymous set public myminio/default
           echo "创建 default bucket 并设置为公开访问"
-          
+
           # 执行传入的命令
           exec "$@"
-          EOFINNER
+          EOF
+          chmod +x entrypoint.sh
 
+      - name: 构建自定义镜像
+        run: |
+          # 创建 Dockerfile
+          cat > Dockerfile << EOF
+          FROM unityci/editor:ubuntu-${{ matrix.unityVersion }}-linux-il2cpp-3
+
+          # 安装 Node.js
+          RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \\
+              apt-get install -y nodejs
+
+          # 安装 MinIO 相关依赖
+          RUN apt-get update && \\
+              apt-get install -y curl ca-certificates && \\
+              rm -rf /var/lib/apt/lists/* && \\
+              mkdir -p /minio/data && \\
+              curl -fsSL https://dl.min.io/server/minio/release/linux-amd64/minio -o /usr/local/bin/minio && \\
+              curl -fsSL https://dl.min.io/client/mc/release/linux-amd64/mc -o /usr/local/bin/mc && \\
+              chmod +x /usr/local/bin/minio /usr/local/bin/mc
+
+          # 设置 MinIO 环境变量
+          ENV MINIO_ACCESS_KEY=admin
+          ENV MINIO_SECRET_KEY=adminadmin
+
+          # 复制启动脚本
+          COPY entrypoint.sh /usr/local/bin/
           RUN chmod +x /usr/local/bin/entrypoint.sh
 
           # 设置镜像入口
           ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
           CMD ["bash"]
           EOF
-          
+
           # 构建镜像
           docker build -t unity-editor-nodejs:latest .
-          
-          # 显示镜像信息
           docker images | grep unity-editor-nodejs
 
       - name: 运行测试
