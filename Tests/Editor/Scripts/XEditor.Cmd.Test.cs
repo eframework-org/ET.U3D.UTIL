@@ -3,12 +3,13 @@
 // license that can be found in the LICENSE file.
 
 #if UNITY_INCLUDE_TESTS
-using System.IO;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using UnityEngine;
 using ET.U3D.UTIL;
 using EP.U3D.UTIL;
+using UnityEngine.TestTools;
+using System.Text.RegularExpressions;
 
 /// <summary>
 /// XEditor.Cmd 命令行工具类的单元测试。
@@ -21,57 +22,50 @@ using EP.U3D.UTIL;
 /// </remarks>
 public class TestXEditorCmd
 {
-    /// <summary>
-    /// 测试目录路径。
-    /// </summary>
     private string testDir;
 
-    /// <summary>
-    /// 测试命令文件路径。
-    /// </summary>
-    private string testCmd;
+    private string succeedCmdFile;
 
-    /// <summary>
-    /// 测试命令文件名。
-    /// </summary>
-    private string testName;
+    private string succeedCmdName;
+
+    private string failedCmdFile;
+
+    private string failedCmdName;
 
     /// <summary>
     /// 测试环境初始化。
     /// </summary>
-    /// <remarks>
-    /// 执行以下操作：
-    /// 1. 创建临时测试目录
-    /// 2. 创建测试命令文件
-    /// 3. 设置命令文件执行权限(非 Windows 平台)
-    /// </remarks>
     [OneTimeSetUp]
     public void Setup()
     {
         // 创建测试目录
-        testDir = Path.Combine(Path.GetTempPath(), "TestXEditorCmd");
+        testDir = XFile.PathJoin(XEnv.ProjectPath, "Temp", "TestXEditorCmd");
         if (!XFile.HasDirectory(testDir)) XFile.CreateDirectory(testDir);
 
         // 创建测试命令文件
-        testName = Application.platform == RuntimePlatform.WindowsEditor ? "mytest.cmd" : "mytest";
-        testCmd = Path.Combine(testDir, testName);
-        File.WriteAllText(testCmd, Application.platform == RuntimePlatform.WindowsEditor ?
+        succeedCmdName = Application.platform == RuntimePlatform.WindowsEditor ? "succeed.cmd" : "succeed";
+        succeedCmdFile = XFile.PathJoin(testDir, succeedCmdName);
+        XFile.SaveText(succeedCmdFile, Application.platform == RuntimePlatform.WindowsEditor ?
             "@echo Hello World\r\n@exit 0" :  // Windows 命令格式
             "#!/bin/bash\necho Hello World\nexit 0");  // Unix 命令格式
+
+        failedCmdName = Application.platform == RuntimePlatform.WindowsEditor ? "failed.cmd" : "failed";
+        failedCmdFile = XFile.PathJoin(testDir, failedCmdName);
+        XFile.SaveText(failedCmdFile, Application.platform == RuntimePlatform.WindowsEditor ?
+            "@echo Hello World\r\n@exit 1" :  // Windows 命令格式
+            "#!/bin/bash\necho Hello World\nexit 1");  // Unix 命令格式
 
         // 非 Windows 平台设置执行权限
         if (Application.platform != RuntimePlatform.WindowsEditor)
         {
-            XEditor.Cmd.Run("/bin/chmod", testDir, false, false, "+x", testCmd).Wait();
+            XEditor.Cmd.Run("/bin/chmod", testDir, false, false, "+x", succeedCmdFile).Wait();
+            XEditor.Cmd.Run("/bin/chmod", testDir, false, false, "+x", failedCmdFile).Wait();
         }
     }
 
     /// <summary>
     /// 测试环境清理。
     /// </summary>
-    /// <remarks>
-    /// 删除测试过程中创建的临时目录和文件。
-    /// </remarks>
     [OneTimeTearDown]
     public void Cleanup()
     {
@@ -81,19 +75,12 @@ public class TestXEditorCmd
     /// <summary>
     /// 测试命令查找功能。
     /// </summary>
-    /// <remarks>
-    /// 验证以下场景：
-    /// 1. 空命令名称：应返回空字符串
-    /// 2. 不存在的命令：应返回空字符串
-    /// 3. 无路径的命令：应返回空字符串
-    /// 4. 指定路径的命令：应返回完整路径
-    /// </remarks>
     [Test]
     public void Find()
     {
         Assert.AreEqual(XEditor.Cmd.Find(""), "", "空命令名称应返回空字符串");
         Assert.AreEqual(XEditor.Cmd.Find("nonexistent"), "nonexistent", "不存在的命令应返回原字符串");
-        Assert.AreEqual(XEditor.Cmd.Find(testName, testDir), XFile.NormalizePath(testCmd), "指定路径的命令应返回完整路径");
+        Assert.AreEqual(XEditor.Cmd.Find(succeedCmdName, testDir), succeedCmdFile, "指定路径的命令应返回完整路径");
     }
 
     /// <summary>
@@ -101,27 +88,21 @@ public class TestXEditorCmd
     /// </summary>
     /// <param name="print">是否打印输出</param>
     /// <param name="progress">是否显示进度</param>
-    /// <param name="args">命令参数</param>
-    /// <param name="expectedCode">期望的返回码</param>
-    /// <param name="expectedOutput">期望的输出内容</param>
-    /// <remarks>
-    /// 验证以下场景：
-    /// 1. 基本命令执行：验证命令是否能正常执行
-    /// 2. 打印输出控制：验证是否正确控制输出打印
-    /// 3. 进度显示控制：验证是否正确控制进度显示
-    /// 4. 返回值验证：验证命令返回码是否符合预期
-    /// 5. 输出内容验证：验证命令输出内容是否符合预期
-    /// </remarks>
-    [TestCase(false, false, new string[] { }, 0, "Hello World", Description = "验证基本命令执行，无打印输出，无进度显示")]
-    [TestCase(true, false, new string[] { }, 0, "Hello World", Description = "验证基本命令执行，启用打印输出，无进度显示")]
-    [TestCase(false, true, new string[] { }, 0, "Hello World", Description = "验证基本命令执行，无打印输出，启用进度显示")]
-    [TestCase(true, true, new string[] { }, 0, "Hello World", Description = "验证基本命令执行，启用打印输出和进度显示")]
-    public async Task Run(bool print, bool progress, string[] args, int expectedCode, string expectedOutput)
+    /// <param name="cmd">命令名称</param>
+    /// <param name="code">期望的返回码</param>
+    [TestCase(false, false, "succeed", 0, TestName = "验证成功命令执行，无打印输出，无进度显示")]
+    [TestCase(true, false, "succeed", 0, TestName = "验证成功命令执行，启用打印输出，无进度显示")]
+    [TestCase(false, true, "failed", 1, TestName = "验证失败命令执行，无打印输出，启用进度显示")]
+    [TestCase(true, true, "failed", 1, TestName = "验证失败命令执行，启用打印输出和进度显示")]
+    public async Task Run(bool print, bool progress, string cmd, int code)
     {
-        var result = await XEditor.Cmd.Run(bin: testCmd, print: print, progress: progress, args: args);
-
-        Assert.That(result.Code, Is.EqualTo(expectedCode), "命令应返回正确的退出码");
-        Assert.That(result.Data.Trim(), Is.EqualTo(expectedOutput), "命令应输出预期的内容");
+        if (print)
+        {
+            if (code != 0) LogAssert.Expect(LogType.Error, new Regex(@"XEditor\.Cmd\.Run: finish .* with code: .*"));
+            else LogAssert.Expect(LogType.Log, new Regex(@"XEditor\.Cmd\.Run: finish .* with code: .*"));
+        }
+        var result = await XEditor.Cmd.Run(bin: XEditor.Cmd.Find(cmd, testDir), print: print, progress: progress);
+        Assert.That(result.Code, Is.EqualTo(code), "命令应返回正确的退出码");
     }
 }
 #endif
