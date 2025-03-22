@@ -83,10 +83,10 @@ jobs:
           
           echo "MinIO 环境设置完成，default bucket 已创建并设置为公开访问"
 
-      - name: 构建 Unity 镜像
+      - name: 构建镜像
         shell: bash
         run: |
-          # 创建临时 Dockerfile
+          # 创建 Dockerfile
           cat > Dockerfile << EOF
           # 基于 unityci/editor 镜像
           FROM unityci/editor:ubuntu-${{ matrix.unityVersion }}-linux-il2cpp-3
