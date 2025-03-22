@@ -423,8 +423,9 @@ namespace ET.U3D.UTIL
                     var taskParams = new List<Dictionary<string, string>>(); // 为每个任务存储独立的参数
                     var resultFile = "";
 
-                    var batchMode = Application.isBatchMode;
                     var args = XEnv.GetArgs();
+                    var batchMode = Application.isBatchMode;
+                    var testMode = args.Exists(kvp => kvp.Key == "runTests");
                     if (!args.Exists(kvp => kvp.Key == "runTasks")) return;
                     else
                     {
@@ -508,7 +509,7 @@ namespace ET.U3D.UTIL
                     catch (Exception e)
                     {
                         XLog.Panic(e);
-                        if (batchMode) EditorApplication.Exit(1);
+                        if (batchMode && !testMode) EditorApplication.Exit(1);
                     }
                     if (!proceed) return;
 
@@ -528,7 +529,7 @@ namespace ET.U3D.UTIL
                             catch (Exception e)
                             {
                                 XLog.Panic(e);
-                                if (batchMode) EditorApplication.Exit(1);
+                                if (batchMode && !testMode) EditorApplication.Exit(1);
                             }
                         }
 
@@ -544,13 +545,13 @@ namespace ET.U3D.UTIL
                         }
 
                         XLog.Debug("XEditor.Tasks.Batch: finish to execute {0} task(s).", workers.Count);
-                        if (batchMode) EditorApplication.Exit(0);
+                        if (batchMode && !testMode) EditorApplication.Exit(0);
                     }
                     catch (Exception e)
                     {
                         XLog.Panic(e);
                         XLog.Error("XEditor.Tasks.Batch: execute {0} task(s) with error: {1}", workers.Count, e.Message);
-                        if (batchMode) EditorApplication.Exit(1); // 只能在主线程退出
+                        if (batchMode && !testMode) EditorApplication.Exit(1); // 只能在主线程退出
                     }
                 }
             }
