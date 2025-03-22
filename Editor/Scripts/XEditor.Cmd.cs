@@ -6,6 +6,7 @@ using System;
 using System.IO;
 using System.Text;
 using System.Diagnostics;
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
@@ -24,7 +25,7 @@ namespace ET.U3D.UTIL
         /// <code>
         /// 功能特性
         /// - 支持 Windows/Linux/macOS 跨平台：自动适配不同系统的命令路径
-        /// - 提供命令路径查找：支持在系统 PATH 和自定义路径中查找命令
+        /// - 提供命令路径查找：支持在系统 PATH、环境变量和自定义路径中查找命令
         /// - 实现异步命令执行：支持命令执行进度显示和取消操作
         /// - 支持 UTF-8 编码：自动处理命令输出的编码问题
         /// 
@@ -118,7 +119,7 @@ namespace ET.U3D.UTIL
             internal static void OnInit() { batchMode = Application.isBatchMode; }
 
             /// <summary>
-            /// 查找命令的完整路径。支持在系统 PATH 和自定义路径中查找，自动适配不同操作系统的命令后缀。
+            /// 查找命令的完整路径。支持在系统 PATH、环境变量和自定义路径中查找，自动适配不同操作系统的命令后缀。
             /// </summary>
             /// <param name="cmd">要查找的命令名称，如 git、python 等。</param>
             /// <param name="extras">额外的查找路径列表。</param>
@@ -143,6 +144,8 @@ namespace ET.U3D.UTIL
                         names = new string[] { cmd, cmd + ".app" };
                     }
                 }
+
+                // 在系统 PATH 中查找命令
 #if UNITY_EDITOR_WIN
                 var path = Environment.GetEnvironmentVariable("PATH");
 #else
@@ -164,6 +167,20 @@ namespace ET.U3D.UTIL
                         if (XFile.HasFile(file)) return file;
                     }
                 }
+
+                // 在环境变量中查找命令
+                foreach (DictionaryEntry kvp in Environment.GetEnvironmentVariables())
+                {
+                    if (kvp.Value == null) continue;
+                    var part = kvp.Value.ToString();
+                    foreach (var name in names)
+                    {
+                        var file = XFile.PathJoin(part, name);
+                        if (XFile.HasFile(file)) return file;
+                    }
+                }
+
+                // 在自定义路径中查找命令
                 foreach (var part in extras)
                 {
                     foreach (var name in names)

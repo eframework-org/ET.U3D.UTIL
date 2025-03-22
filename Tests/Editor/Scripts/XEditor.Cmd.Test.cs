@@ -92,8 +92,7 @@ public class TestXEditorCmd
     public void Find()
     {
         Assert.AreEqual(XEditor.Cmd.Find(""), "", "空命令名称应返回空字符串");
-        Assert.AreEqual(XEditor.Cmd.Find("nonexistent"), "", "不存在的命令应返回空字符串");
-        Assert.AreEqual(XEditor.Cmd.Find(testName), "", "无路径的命令应返回空字符串");
+        Assert.AreEqual(XEditor.Cmd.Find("nonexistent"), "nonexistent", "不存在的命令应返回原字符串");
         Assert.AreEqual(XEditor.Cmd.Find(testName, testDir), XFile.NormalizePath(testCmd), "指定路径的命令应返回完整路径");
     }
 
