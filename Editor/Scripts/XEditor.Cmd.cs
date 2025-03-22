@@ -172,7 +172,7 @@ namespace ET.U3D.UTIL
                         if (XFile.HasFile(file)) return file;
                     }
                 }
-                return string.Empty;
+                return cmd;
             }
 
             /// <summary>
